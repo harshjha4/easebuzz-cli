@@ -1,0 +1,4 @@
+requests==2.34.2
+typer==0.26.4
+dynaconf==3.2.13
+rich==15.0.0
