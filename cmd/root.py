@@ -8,7 +8,9 @@ __version__ = "1.0.0"
 
 root_app = typer.Typer(
     name="easebuzz",
-    help="Streamlined Dev-Tooling for Testing Easebuzz Merchant Integrations."
+    no_args_is_help=True,
+    rich_markup_mode="rich",
+    help="Command-line interface for the Easebuzz API."
 )
 
 root_app.command(name="configure")(configure)
@@ -21,6 +23,7 @@ def version_callback(value: bool):
 
 @root_app.callback()
 def global_options(
+    ctx: typer.Context,
     version: bool = typer.Option(
         None, "--version", "-v",
         callback=version_callback,
@@ -29,6 +32,19 @@ def global_options(
     )
 ):
     """
-    Global control hook processing global option states.
+    The Easebuzz CLI provides command-line access to the Easebuzz API.
+
+    To get started, configure your API credentials:
+
+      [bold cyan]easebuzz configure[/bold cyan]
+
+    Then run any resource command, for example:
+
+      [bold cyan]easebuzz payment initiate --amount 500.00[/bold cyan]
+      [bold cyan]easebuzz payment bulk --count 10[/bold cyan]
+
+    For help on a specific command, run:
+
+      [bold cyan]easebuzz <command> --help[/bold cyan]
     """
     pass

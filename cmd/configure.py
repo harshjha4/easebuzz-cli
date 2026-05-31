@@ -1,6 +1,5 @@
 import typer
-
-from config.config import console, init_config, save, ENV_URLS
+from config.config import console, save, ENV_URLS
 
 
 def configure(
@@ -8,8 +7,6 @@ def configure(
     salt: str = typer.Option(..., "--salt", "-s", prompt="Enter Easebuzz Merchant Salt", hide_input=True),
     env: str = typer.Option("sandbox", "--env", "-e", prompt="Environment (development/qa/sandbox/production)")
 ):
-    config = init_config()
-
     if not key.strip() or not salt.strip():
         console.print("[bold red]Error: Key and Salt cannot be empty.[/bold red]")
         raise typer.Exit(code=1)

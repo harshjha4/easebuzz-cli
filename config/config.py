@@ -1,6 +1,4 @@
-# config/config.py
 import hashlib
-import os
 import secrets
 import string
 

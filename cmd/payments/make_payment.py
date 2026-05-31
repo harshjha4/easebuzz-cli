@@ -108,7 +108,7 @@ def initiate_payment(
         res_data = execute_single_payload(endpoint_url, payload)
 
         if res_data.get("status") == 1:
-            console.print("\n[bold green]✅ Transaction initiated successfully![/bold green]")
+            console.print("\n[bold green] Transaction initiated successfully![/bold green]")
             table = Table(title=f"Transaction Summary ({current_env.upper()})")
             table.add_column("Parameter", style="cyan")
             table.add_column("Value", style="magenta")
@@ -147,7 +147,7 @@ def bulk_payment(
     endpoint_url = get_active_endpoint("/payment/initiateLink")
 
     console.print(
-        f"[bold magenta]🚀 Dispatching {count} concurrent bulk workers against {current_env.upper()} endpoint...[/bold magenta]\n")
+        f"[bold magenta] Dispatching {count} concurrent bulk workers against {current_env.upper()} endpoint...[/bold magenta]\n")
 
     # Generate payloads dynamically before executing thread pools
     payloads_pool = []
