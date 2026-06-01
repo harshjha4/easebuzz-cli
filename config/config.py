@@ -9,14 +9,23 @@ import sys
 import json
 from pathlib import Path
 
+from rich.panel import Panel
+
 CONFIG_DIR  = ".easebuzz"
 CONFIG_FILE = "config"
 CONFIG_TYPE = "json"
 DEFAULT_OUTPUT_FORMAT = "json"
 
 ENV_URLS = {
-    "sandbox": "https://testpay.easebuzz.in/payment/initiateLink",
-    "production": "https://pay.easebuzz.in/payment/initiateLink"
+    "dev": {
+        "initiate": "https://pay.easebuzz.dev/payment/initiateLink"
+    },
+    "sandbox": {
+        "initiate": "https://testpay.easebuzz.in/payment/initiateLink"
+    },
+    "production": {
+        "initiate": "https://pay.easebuzz.in/payment/initiateLink"
+    }
 }
 
 app = typer.Typer(help="Easebuzz CLI tool for testing merchant integrations.")
@@ -75,3 +84,39 @@ def generate_hash(data, salt):
         f"{data['firstname']}|{data['email']}|||||||||||{salt}"
     )
     return hashlib.sha512(hash_sequence.encode('utf-8')).hexdigest().lower()
+
+def get_active_endpoint(work: str, path: str) -> str:
+    """
+    Constructs the absolute URL based on the user's configured environment.
+    """
+    config = init_config()
+    current_env = config.get("env", "sandbox")
+
+    # Fallback to sandbox if environment is unmapped
+    base_domain = ENV_URLS.get(current_env, ENV_URLS["sandbox"]).get(work)
+    if not base_domain:
+        print("[bold red] Failed to initiate Payment, no url found")
+        sys.exit(1)
+    return f"{base_domain}{path}"
+
+
+def display_diagnostic_curl(url: str, payload: dict):
+    """
+    Renders an exact copy-pasteable curl string containing fully compiled
+    hashes and structural variables. Used by merchants to debug payload issues.
+    """
+    curl_body = " \\\n".join([f"  -d '{k}={v}'" for k, v in payload.items()])
+    curl_command = (
+        f"curl -X POST '{url}' \\\n"
+        f"  -H 'Content-Type: application/x-www-form-urlencoded' \\\n"
+        f"  -H 'Accept: application/json' \\\n"
+        f"{curl_body}"
+    )
+    console.print(
+        Panel(
+            curl_command,
+            title="[bold green] Merchant Diagnostic cURL (Copy/Paste to Validate Integration)[/bold green]",
+            border_style="green",
+            expand=False
+        )
+    )

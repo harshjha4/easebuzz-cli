@@ -6,44 +6,10 @@ import typer
 from rich.panel import Panel
 from rich.table import Table
 
-from config.config import console, init_config, ENV_URLS, generate_txnid, generate_hash
+from config.config import console, init_config, generate_txnid, generate_hash, get_active_endpoint, \
+    display_diagnostic_curl
 
 payments_app = typer.Typer(help="Execute manual, targeted mode, and asynchronous bulk payment simulations.")
-
-
-def get_active_endpoint(path: str = "/payment/initiateLink") -> str:
-    """
-    Constructs the absolute URL based on the user's configured environment.
-    """
-    config = init_config()
-    current_env = config.get("env", "sandbox")
-
-    # Fallback to sandbox if environment is unmapped
-    base_domain = ENV_URLS.get(current_env, ENV_URLS["sandbox"])
-    return f"{base_domain}{path}"
-
-
-def display_diagnostic_curl(url: str, payload: dict):
-    """
-    Renders an exact copy-pasteable curl string containing fully compiled
-    hashes and structural variables. Used by merchants to debug payload issues.
-    """
-    curl_body = " \\\n".join([f"  -d '{k}={v}'" for k, v in payload.items()])
-    curl_command = (
-        f"curl -X POST '{url}' \\\n"
-        f"  -H 'Content-Type: application/x-www-form-urlencoded' \\\n"
-        f"  -H 'Accept: application/json' \\\n"
-        f"{curl_body}"
-    )
-    console.print(
-        Panel(
-            curl_command,
-            title="[bold green]📋 Merchant Diagnostic cURL (Copy/Paste to Validate Integration)[/bold green]",
-            border_style="green",
-            expand=False
-        )
-    )
-
 
 def execute_single_payload(endpoint_url: str, payload: dict) -> dict:
     """Executes an isolated form-encoded POST transaction against Easebuzz servers."""
@@ -78,7 +44,7 @@ def initiate_payment(
         raise typer.Exit(code=1)
 
     current_env = config.get("env", "sandbox")
-    endpoint_url = get_active_endpoint("/payment/initiateLink")
+    endpoint_url = get_active_endpoint('initiate', "/payment/initiateLink")
     txnid = generate_txnid()
 
     payload = {
