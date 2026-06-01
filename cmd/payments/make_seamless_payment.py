@@ -8,7 +8,7 @@ from services.payments import initiate_payment_logic, seamless_payment_logic
 
 seamless_payments_app = typer.Typer(help="Execute seamless payments")
 
-@seamless_payments_app.command("seamless", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@seamless_payments_app.command("initiate", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def seamless_payment(
         ctx: typer.Context,
         amount: float = typer.Option(..., prompt="Enter payment amount"),
