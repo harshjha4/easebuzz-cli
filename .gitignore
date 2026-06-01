@@ -1,2 +1,5 @@
-__pycache__
-.idea
+# Ignore Python cache directories
+**/__pycache__/
+
+# Ignore JetBrains/PyCharm project settings
+.idea/
