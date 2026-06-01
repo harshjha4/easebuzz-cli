@@ -22,7 +22,7 @@ Built for speed and precision, the Easebuzz CLI allows merchants and QA engineer
 ### macOS & Linux
 Install the CLI globally in seconds using our self-bootstrapping script.
 ```bash
-curl -fsSL [https://raw.githubusercontent.com/harshjha4/easebuzz-cli/main/install.sh](https://raw.githubusercontent.com/harshjha4/easebuzz-cli/main/install.sh) | bash
+curl -fsSL https://raw.githubusercontent.com/harshjha4/easebuzz-cli/master/install-cli.sh | bash
 
 ```
 
@@ -31,7 +31,7 @@ curl -fsSL [https://raw.githubusercontent.com/harshjha4/easebuzz-cli/main/instal
 Open **PowerShell** and execute the native installer:
 
 ```powershell
-Invoke-Expression (New-Object System.Net.WebClient).DownloadString('[https://raw.githubusercontent.com/harshjha4/easebuzz-cli/main/install.ps1](https://raw.githubusercontent.com/harshjha4/easebuzz-cli/main/install.ps1)')
+Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/harshjha4/easebuzz-cli/master/install-cli.ps1')
 
 ```
 
