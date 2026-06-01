@@ -103,7 +103,7 @@ def bulk_payment(
     if ctx.args:
         for i in range(0, len(ctx.args), 2):
             flag = ctx.args[i].lstrip("-")
-            if flag in PAYMENT_INITIATE_SCHEMA["optional"]:
+            if flag in PAYMENT_INITIATE_SCHEMA:
                 val = ctx.args[i + 1] if i + 1 < len(ctx.args) else ""
                 extra_args[flag] = val
 

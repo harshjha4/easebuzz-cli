@@ -2,6 +2,7 @@ import typer
 
 from cmd.payments.make_payment import payments_app
 from cmd.payments.make_seamless_payment import seamless_payments_app
+from cmd.payments.payment_status import payments_status_app
 from config.config import console
 from cmd.configure import configure
 
@@ -33,6 +34,7 @@ root_app = typer.Typer(
 root_app.command(name="configure")(configure)
 root_app.add_typer(payments_app, name="payment")
 root_app.add_typer(seamless_payments_app, name="seamless")
+root_app.add_typer(payments_status_app, name="payment status")
 
 def version_callback(value: bool):
     if value:

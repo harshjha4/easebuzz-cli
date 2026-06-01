@@ -22,15 +22,18 @@ DEFAULT_OUTPUT_FORMAT = "json"
 ENV_URLS = {
     "dev": {
         "initiate": "https://pay.easebuzz.dev/payment/initiateLink",
-        "seamless": "https://pay.easebuzz.dev/initiate_seamless_payment"
+        "seamless": "https://pay.easebuzz.dev/initiate_seamless_payment",
+        "status": "https://dashboard.easebuzz.dev/transaction/v1/retrieve"
     },
     "sandbox": {
         "initiate": "https://testpay.easebuzz.in/payment/initiateLink",
-        "seamless": "https://testpay.easebuzz.in/initiate_seamless_payment"
+        "seamless": "https://testpay.easebuzz.in/initiate_seamless_payment",
+        "status": "https://testdashboard.easebuzz.in/transaction/v1/retrieve"
     },
     "production": {
         "initiate": "https://pay.easebuzz.in/payment/initiateLink",
-        "seamless": "https://pay.easebuzz.in/initiate_seamless_payment"
+        "seamless": "https://pay.easebuzz.in/initiate_seamless_payment",
+        "status": "https://dashboard.easebuzz.in/transaction/v1/retrieve"
     }
 }
 
@@ -150,14 +153,14 @@ def collect_dynamic_args(ctx: typer.Context, interactive: bool, schema: Any) -> 
     if ctx.args:
         for i in range(0, len(ctx.args), 2):
             flag = ctx.args[i].lstrip("-")
-            if flag in schema["optional"]:
+            if flag in schema:
                 val = ctx.args[i + 1] if i + 1 < len(ctx.args) else ""
                 extra_args[flag] = val
 
     # Interactive Wizard
     if interactive:
         console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
-        for field_key, prompt_text in schema["optional"].items():
+        for field_key, prompt_text in schema.items():
             if field_key in extra_args:
                 continue
             if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
