@@ -3,3 +3,7 @@
 
 # Ignore JetBrains/PyCharm project settings
 .idea/
+
+#venv remove
+venv/
+.venv/
