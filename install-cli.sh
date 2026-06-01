@@ -30,7 +30,7 @@ fi
 DOWNLOAD_URL="https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}/releases/latest/download/${BINARY_NAME}"
 
 # 3. Download the Binary
-echo "⬇️ Downloading ${BINARY_NAME}..."
+echo "Downloading ${BINARY_NAME}..."
 if ! curl -fsSL -o easebuzz "$DOWNLOAD_URL"; then
     echo "Download failed. Make sure you have uploaded '${BINARY_NAME}' to your GitHub Releases page."
     exit 1
@@ -41,7 +41,7 @@ chmod +x easebuzz
 
 # 5. Move it directly into the system's global execution path
 BIN_DIR="/usr/local/bin"
-echo "🔐 Linking global executable footprint to ${BIN_DIR}/easebuzz (requires sudo permission)..."
+echo "Linking global executable footprint to ${BIN_DIR}/easebuzz (requires sudo permission)..."
 
 if [ -w "$BIN_DIR" ]; then
     mv easebuzz "$BIN_DIR/easebuzz"
@@ -50,5 +50,5 @@ else
 fi
 
 echo ""
-echo "🎉 Success! The Easebuzz CLI is installed."
-echo "👉 Run 'easebuzz --help' from any terminal window to get started."
+echo "Success! The Easebuzz CLI is installed."
+echo "Run 'easebuzz --help' from any terminal window to get started."
