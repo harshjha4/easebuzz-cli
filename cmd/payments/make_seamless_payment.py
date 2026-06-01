@@ -6,9 +6,9 @@ from config.config import console, init_config, display_diagnostic_curl, collect
 from config.constants import PAYMENT_INITIATE_SCHEMA, SEAMLESS_INSTRUMENT_SCHEMA
 from services.payments import initiate_payment_logic, seamless_payment_logic
 
-payments_app = typer.Typer(help="Execute manual, targeted mode, and asynchronous bulk payment simulations.")
+seamless_payments_app = typer.Typer(help="Execute seamless payments")
 
-@payments_app.command("seamless", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
+@seamless_payments_app.command("seamless", context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def seamless_payment(
         ctx: typer.Context,
         amount: float = typer.Option(..., prompt="Enter payment amount"),
