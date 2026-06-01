@@ -7,3 +7,7 @@
 #venv remove
 venv/
 .venv/
+
+build/
+dist/
+easebuzz-cli-linux.spec
