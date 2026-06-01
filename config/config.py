@@ -1,7 +1,9 @@
 import hashlib
 import secrets
 import string
+from typing import Any
 
+import requests
 import typer
 from rich.console import Console
 from dynaconf import Dynaconf
@@ -10,6 +12,7 @@ import json
 from pathlib import Path
 
 from rich.panel import Panel
+from rich.prompt import Confirm, Prompt
 
 CONFIG_DIR  = ".easebuzz"
 CONFIG_FILE = "config"
@@ -18,13 +21,16 @@ DEFAULT_OUTPUT_FORMAT = "json"
 
 ENV_URLS = {
     "dev": {
-        "initiate": "https://pay.easebuzz.dev/payment/initiateLink"
+        "initiate": "https://pay.easebuzz.dev/payment/initiateLink",
+        "seamless": "https://pay.easebuzz.dev/initiate_seamless_payment"
     },
     "sandbox": {
-        "initiate": "https://testpay.easebuzz.in/payment/initiateLink"
+        "initiate": "https://testpay.easebuzz.in/payment/initiateLink",
+        "seamless": "https://testpay.easebuzz.in/initiate_seamless_payment"
     },
     "production": {
-        "initiate": "https://pay.easebuzz.in/payment/initiateLink"
+        "initiate": "https://pay.easebuzz.in/payment/initiateLink",
+        "seamless": "https://pay.easebuzz.in/initiate_seamless_payment"
     }
 }
 
@@ -120,3 +126,41 @@ def display_diagnostic_curl(url: str, payload: dict):
             expand=False
         )
     )
+
+def post_execute_single_payload(endpoint_url: str, payload: dict) -> dict:
+    """Executes an isolated form-encoded POST transaction against Easebuzz servers."""
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json"
+    }
+    try:
+        response = requests.post(endpoint_url, data=payload, headers=headers, timeout=15)
+        if response.status_code == 200:
+            return response.json()
+        return {"status": 0, "error": f"HTTP Gateway Error Code: {response.status_code}"}
+    except requests.RequestException as e:
+        return {"status": 0, "error": str(e)}
+
+
+def collect_dynamic_args(ctx: typer.Context, interactive: bool, schema: Any) -> dict:
+    """Helper to collect optional terminal arguments and interactive wizard inputs."""
+    extra_args = {}
+
+    # Parse CLI Flags
+    if ctx.args:
+        for i in range(0, len(ctx.args), 2):
+            flag = ctx.args[i].lstrip("-")
+            if flag in schema["optional"]:
+                val = ctx.args[i + 1] if i + 1 < len(ctx.args) else ""
+                extra_args[flag] = val
+
+    # Interactive Wizard
+    if interactive:
+        console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
+        for field_key, prompt_text in schema["optional"].items():
+            if field_key in extra_args:
+                continue
+            if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
+                extra_args[field_key] = Prompt.ask(f"Enter [cyan]{field_key}[/cyan]")
+
+    return extra_args
