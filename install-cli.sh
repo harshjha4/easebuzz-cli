@@ -6,7 +6,13 @@ GITHUB_REPO="easebuzz-cli"
 
 echo "Bootstrapping Easebuzz CLI (Standalone Binary)..."
 
-# 1. Detect Operating System and Architecture
+# 1. Remove the global terminal command link (requires sudo)
+sudo rm -f /usr/local/bin/easebuzz
+
+# 2. Delete the hidden application directory containing runtime files and saved credentials
+rm -rf "$HOME/.easebuzz"
+
+# 3. Detect Operating System and Architecture
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 
@@ -25,21 +31,21 @@ else
     exit 1
 fi
 
-# 2. Construct the GitHub Releases Download URL
+# 4. Construct the GitHub Releases Download URL
 # This fetches the binary from the "Latest" release tag on your repo
 DOWNLOAD_URL="https://github.com/${GITHUB_USERNAME}/${GITHUB_REPO}/releases/latest/download/${BINARY_NAME}"
 
-# 3. Download the Binary
+# 5. Download the Binary
 echo "Downloading ${BINARY_NAME}..."
 if ! curl -fsSL -o easebuzz "$DOWNLOAD_URL"; then
     echo "Download failed. Make sure you have uploaded '${BINARY_NAME}' to your GitHub Releases page."
     exit 1
 fi
 
-# 4. Make the file natively executable
+# 6. Make the file natively executable
 chmod +x easebuzz
 
-# 5. Move it directly into the system's global execution path
+# 7. Move it directly into the system's global execution path
 BIN_DIR="/usr/local/bin"
 echo "Linking global executable footprint to ${BIN_DIR}/easebuzz (requires sudo permission)..."
 
