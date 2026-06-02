@@ -19,7 +19,7 @@ ARCH="$(uname -m)"
 echo "Detected System: $OS on $ARCH"
 
 if [ "$OS" = "Linux" ]; then
-    BINARY_NAME="easebuzz-cli-linux"
+    BINARY_NAME="easebuzz-cli-universal"
 elif [ "$OS" = "Darwin" ]; then
     if [ "$ARCH" = "arm64" ]; then
         BINARY_NAME="easebuzz-mac-arm" # For Apple Silicon (M1/M2/M3)
