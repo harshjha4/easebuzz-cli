@@ -1,6 +1,6 @@
 import typer
 from rich.panel import Panel
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 from rich.table import Table
 
 from config.config import console, init_config, display_diagnostic_curl, collect_dynamic_args
@@ -66,7 +66,7 @@ def seamless_payment(
     current_args = {k: func_vars[k] for k in PAYMENT_INITIATE_SCHEMA if func_vars.get(k) is not None}
 
     # 2. RUN THE WIZARD (For optional payload fields)
-    extra_args = collect_dynamic_args(interactive, PAYMENT_INITIATE_SCHEMA, current_args)
+    extra_args = collect_dynamic_args(interactive, PAYMENT_INITIATE_SCHEMA, current_args, True)
 
     console.print(f"\n[bold cyan]--- Step 1: Initiating Secure Session ({current_env.upper()}) ---[/bold cyan]")
     base_payload = {
@@ -95,15 +95,19 @@ def seamless_payment(
     mode_schema = SEAMLESS_INSTRUMENT_SCHEMA[mode]
 
     console.print("[dim white]Please enter the required payment instrument details:[/dim white]")
-    for field_key, prompt_label in mode_schema.items():
-        # Mask sensitive CVV inputs automatically
-        is_secret = "cvv" in field_key.lower()
-        user_input = Prompt.ask(f"  [magenta]>[/magenta] {prompt_label}", password=is_secret)
-        instrument_details[field_key] = user_input
+    instrument_details = collect_dynamic_args(True, SEAMLESS_INSTRUMENT_SCHEMA[mode], {}, ask_confirm=False)
 
-    # Easebuzz specific UPI requirement
+    # --- API SPECIFIC ROUTING RULES ---
     if mode == "UPI":
-        instrument_details["request_mode"] = "SUVA"
+        if instrument_details.get("upi_qr") is True:
+            instrument_details["upi_qr"] = "true"
+            instrument_details.pop("upi_va", None)
+        elif instrument_details.get("upi_va"):
+            instrument_details["request_mode"] = "SUVA"
+
+    if mode in ["CC", "DC"] and Confirm.ask("\nTrigger Native OTP Flow (S2S)?", default=False):
+        instrument_details["request_mode"] = "S2S"
+        # Note: In a real environment, you would also collect and pass browser details here
 
     with console.status(f"[bold magenta]Pushing encrypted instrument payload to {current_env.upper()}..."):
         seamless_payload, seamless_url, seamless_res = seamless_payment_logic(

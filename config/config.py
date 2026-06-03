@@ -169,18 +169,61 @@ def post_execute_single_payload(endpoint_url: str, payload: dict) -> dict:
 #     return extra_args
 
 
-def collect_dynamic_args(interactive: bool, schema: Any, current_args: dict) -> dict:
-    """Helper to launch a step-by-step wizard for optional fields."""
+# def collect_dynamic_args(interactive: bool, schema: Any, current_args: dict) -> dict:
+#     """Helper to launch a step-by-step wizard for optional fields."""
+#     if not interactive:
+#         return current_args
+#
+#     console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
+#     for field_key, prompt_text in schema.items():
+#         # Skip asking if the user already passed it as a CLI flag (e.g., --udf1)
+#         if field_key in current_args:
+#             continue
+#
+#         if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
+#             current_args[field_key] = Prompt.ask(f"Enter [cyan]{field_key}[/cyan]")
+#
+#     return current_args
+
+def collect_dynamic_args(
+        interactive: bool,
+        schema: dict,
+        current_args: dict,
+        ask_confirm: bool = True
+) -> dict:
+    """
+    Unified wizard to collect inputs dynamically from a metadata schema.
+
+    :param interactive: If False, skips processing and returns current_args immediately.
+    :param schema: The schema dictionary containing field metadata.
+    :param current_args: Existing arguments (passed via CLI flags) to skip.
+    :param ask_confirm: If True, asks 'Add [field]?' before prompting. If False, prompts directly.
+    """
     if not interactive:
         return current_args
 
-    console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
-    for field_key, prompt_text in schema.items():
-        # Skip asking if the user already passed it as a CLI flag (e.g., --udf1)
+    for field_key, meta in schema.items():
+        # Skip if already provided via CLI flags/overrides
         if field_key in current_args:
             continue
 
-        if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
-            current_args[field_key] = Prompt.ask(f"Enter [cyan]{field_key}[/cyan]")
+        label = meta.get("label", field_key)
+        field_type = meta.get("type", str)
+        is_secret = "cvv" in field_key.lower()
+
+        # Step 1: Handle confirmation gate if required
+        should_prompt = True
+        if ask_confirm:
+            should_prompt = Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({label})?", default=False)
+
+        # Step 2: Collect input based on field type
+        if should_prompt:
+            if field_type == bool:
+                current_args[field_key] = Confirm.ask(f"  [magenta]>[/magenta] {label}")
+            else:
+                user_input = Prompt.ask(f"  [magenta]>[/magenta] {label}", password=is_secret)
+                # Only add string values if the user actually typed something
+                if user_input:
+                    current_args[field_key] = user_input
 
     return current_args
