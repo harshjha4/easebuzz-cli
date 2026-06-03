@@ -22,17 +22,17 @@ DEFAULT_OUTPUT_FORMAT = "json"
 ENV_URLS = {
     "dev": {
         "initiate": "https://pay.easebuzz.dev/payment/initiateLink",
-        "seamless": "https://pay.easebuzz.dev/initiate_seamless_payment",
+        "seamless": "https://pay.easebuzz.dev/initiate_seamless_payment/",
         "status": "https://dashboard.easebuzz.dev/transaction/v1/retrieve"
     },
     "sandbox": {
         "initiate": "https://testpay.easebuzz.in/payment/initiateLink",
-        "seamless": "https://testpay.easebuzz.in/initiate_seamless_payment",
+        "seamless": "https://testpay.easebuzz.in/initiate_seamless_payment/",
         "status": "https://testdashboard.easebuzz.in/transaction/v1/retrieve"
     },
     "production": {
         "initiate": "https://pay.easebuzz.in/payment/initiateLink",
-        "seamless": "https://pay.easebuzz.in/initiate_seamless_payment",
+        "seamless": "https://pay.easebuzz.in/initiate_seamless_payment/",
         "status": "https://dashboard.easebuzz.in/transaction/v1/retrieve"
     }
 }
