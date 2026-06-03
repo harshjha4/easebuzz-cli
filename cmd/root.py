@@ -6,7 +6,7 @@ from cmd.payments.payment_status import payments_status_app
 from config.config import console
 from cmd.configure import configure
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 LONG_DESCRIPTION = """
 The Easebuzz CLI provides command-line access to the Easebuzz API.
 
