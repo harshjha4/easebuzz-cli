@@ -145,25 +145,42 @@ def post_execute_single_payload(endpoint_url: str, payload: dict) -> dict:
         return {"status": 0, "error": str(e)}
 
 
-def collect_dynamic_args(ctx: typer.Context, interactive: bool, schema: Any) -> dict:
-    """Helper to collect optional terminal arguments and interactive wizard inputs."""
-    extra_args = {}
+# def collect_dynamic_args(ctx: typer.Context, interactive: bool, schema: Any) -> dict:
+#     """Helper to collect optional terminal arguments and interactive wizard inputs."""
+#     extra_args = {}
+#
+#     # Parse CLI Flags
+#     if ctx.args:
+#         for i in range(0, len(ctx.args), 2):
+#             flag = ctx.args[i].lstrip("-")
+#             if flag in schema:
+#                 val = ctx.args[i + 1] if i + 1 < len(ctx.args) else ""
+#                 extra_args[flag] = val
+#
+#     # Interactive Wizard
+#     if interactive:
+#         console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
+#         for field_key, prompt_text in schema.items():
+#             if field_key in extra_args:
+#                 continue
+#             if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
+#                 extra_args[field_key] = Prompt.ask(f"Enter [cyan]{field_key}[/cyan]")
+#
+#     return extra_args
 
-    # Parse CLI Flags
-    if ctx.args:
-        for i in range(0, len(ctx.args), 2):
-            flag = ctx.args[i].lstrip("-")
-            if flag in schema:
-                val = ctx.args[i + 1] if i + 1 < len(ctx.args) else ""
-                extra_args[flag] = val
 
-    # Interactive Wizard
-    if interactive:
-        console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
-        for field_key, prompt_text in schema.items():
-            if field_key in extra_args:
-                continue
-            if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
-                extra_args[field_key] = Prompt.ask(f"Enter [cyan]{field_key}[/cyan]")
+def collect_dynamic_args(interactive: bool, schema: Any, current_args: dict) -> dict:
+    """Helper to launch a step-by-step wizard for optional fields."""
+    if not interactive:
+        return current_args
 
-    return extra_args
+    console.print("\n[bold yellow]Optional Fields Wizard:[/bold yellow]")
+    for field_key, prompt_text in schema.items():
+        # Skip asking if the user already passed it as a CLI flag (e.g., --udf1)
+        if field_key in current_args:
+            continue
+
+        if Confirm.ask(f"Add [cyan]{field_key}[/cyan] ({prompt_text})?", default=False):
+            current_args[field_key] = Prompt.ask(f"Enter [cyan]{field_key}[/cyan]")
+
+    return current_args

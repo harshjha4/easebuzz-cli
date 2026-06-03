@@ -9,30 +9,46 @@ payments_status_app = typer.Typer(help="Execute status api for transaction statu
 
 @payments_status_app.command("check")
 def payment_status(
+        # --- Mandatory Fields ---
         txnid: str = typer.Option(..., "--txnid", "-t", prompt="Enter Transaction ID (txnid)"),
         amount: float = typer.Option(..., "--amount", "-a", prompt="Enter Transaction Amount"),
         email: str = typer.Option(..., "--email", "-e", prompt="Enter Customer Email"),
-        phone: str = typer.Option(..., "--phone", "-p", prompt="Enter Customer Phone")
+        phone: str = typer.Option(..., "--phone", "-p", prompt="Enter Customer Phone"),
+
+        # --- Config Overrides ---
+        key: str = typer.Option(None, "--key", help="Override Merchant Key for this execution"),
+        salt: str = typer.Option(None, "--salt",
+                                       help="Override Merchant Salt/Secret for this execution"),
+        env: str = typer.Option(None, "--env", help="Override Target Environment (sandbox/dev/production)")
 ):
+    """Query the Easebuzz database for the exact status of a specific transaction."""
     config = init_config()
-    current_env = config.get("env", "sandbox")
+
+    # Apply CLI config overrides if provided
+    if key: config["key"] = key
+    if salt: config["salt"] = salt
+    if env: config["env"] = env.lower()
 
     if not config.get("key") or not config.get("salt"):
-        console.print("[bold red]CLI unconfigured. Run 'easebuzz configure' first.[/bold red]")
+        console.print("[bold red]CLI unconfigured. Pass --key and --secret, or run 'easebuzz configure'.[/bold red]")
         raise typer.Exit(1)
+
+    current_env = config.get("env", "sandbox")
 
     with console.status(f"[bold cyan] Querying Easebuzz {current_env.upper()} database for '{txnid}'..."):
         payload, endpoint_url, res_data = transaction_status_logic(config, txnid, amount, email, phone)
 
     display_diagnostic_curl(endpoint_url, payload)
 
+    # Check for successful payload parsing
     if res_data.get("status") is True and "msg" in res_data:
         msg_data = res_data["msg"]
         gateway_status = msg_data.get("status", "Unknown")
 
+        # Color routing for terminal aesthetics
         if gateway_status.lower() == "success":
             color = "green"
-        elif gateway_status.lower() == "usercancelled" or gateway_status.lower() == "failure":
+        elif gateway_status.lower() in ["usercancelled", "failure", "bounced"]:
             color = "red"
         else:
             color = "yellow"

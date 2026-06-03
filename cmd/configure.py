@@ -5,7 +5,7 @@ from config.config import console, save, ENV_URLS
 def configure(
     key: str = typer.Option(..., "--key", "-k", prompt="Enter Easebuzz Merchant Key", hide_input=True),
     salt: str = typer.Option(..., "--salt", "-s", prompt="Enter Easebuzz Merchant Salt", hide_input=True),
-    env: str = typer.Option("sandbox", "--env", "-e", prompt="Environment (development/qa/sandbox/production)")
+    env: str = typer.Option("sandbox", "--env", "-e", prompt="Environment (dev/qa/sandbox/production)")
 ):
     if not key.strip() or not salt.strip():
         console.print("[bold red]Error: Key and Salt cannot be empty.[/bold red]")
